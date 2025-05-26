@@ -1,0 +1,22 @@
+from datetime import datetime, timezone
+
+from sqlalchemy import Column, UUID, DateTime
+
+from chats.shared.database import Base
+
+import uuid
+
+class Chat(Base):
+    __tablename__ = "chats"
+
+    id: uuid.UUID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    match_id: uuid.UUID = Column(UUID(as_uuid=True), nullable=False)
+    created_at: datetime = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False
+    )
+    finished_at: datetime = Column(
+        DateTime(timezone=True),
+        nullable=True
+    )
