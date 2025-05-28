@@ -23,7 +23,10 @@ from chats.models.chats import Chat
 # noinspection PyUnresolvedReferences
 from chats.models.messages import Message
 
-from chats.shared.database import Base
+# noinspection PyUnresolvedReferences
+from comments.models.comments import Comment
+
+from shared.database import Base
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,

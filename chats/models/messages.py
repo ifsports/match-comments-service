@@ -2,9 +2,7 @@ from datetime import datetime, timezone
 
 from sqlalchemy import Column, UUID, String, ForeignKey, DateTime
 
-from chats.shared.database import Base
-
-from chats.models.chats import Chat
+from shared.database import Base
 
 import uuid
 

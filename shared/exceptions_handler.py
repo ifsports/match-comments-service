@@ -1,4 +1,4 @@
-from chats.shared.exceptions import NotFound, Conflict
+from shared.exceptions import NotFound, Conflict
 
 from fastapi import Request
 from fastapi.responses import JSONResponse

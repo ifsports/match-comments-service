@@ -10,8 +10,8 @@ from chats.models.messages import Message
 
 from chats.models.chats import Chat
 from chats.schemas.messages import MessageCreateRequest, MessageResponse
-from chats.shared.dependencies import get_db
-from chats.shared.exceptions import NotFound
+from shared.dependencies import get_db
+from shared.exceptions import NotFound
 
 router = APIRouter(
     prefix='/api/v1/chat/{chat_id}/messages',
@@ -30,13 +30,10 @@ def get_messages(chat_id: uuid.UUID,
 
     messages: Message = db.query(Message).filter(Message.chat_id == chat.id)  # type: ignore
 
-    if not messages:
-        raise NotFound("Mensagens neste chat")
-
     return messages.all()
 
 
-@router.post('/', status_code=201)
+@router.post('/', response_model=MessageResponse, status_code=201)
 def create_message(chat_id: uuid.UUID,
                    message_request: MessageCreateRequest,
                    db: Session = Depends(get_db)):
