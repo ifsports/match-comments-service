@@ -10,6 +10,7 @@ from chats.models.messages import Message
 
 from chats.models.chats import Chat
 from chats.schemas.messages import MessageCreateRequest, MessageResponse
+from app import socket_manager
 from shared.dependencies import get_db
 from shared.exceptions import NotFound
 
@@ -34,7 +35,7 @@ def get_messages(chat_id: uuid.UUID,
 
 
 @router.post('/', response_model=MessageResponse, status_code=201)
-def create_message(chat_id: uuid.UUID,
+async def create_message(chat_id: uuid.UUID,
                    message_request: MessageCreateRequest,
                    db: Session = Depends(get_db)):
 
@@ -49,5 +50,15 @@ def create_message(chat_id: uuid.UUID,
     db.add(message)
     db.commit()
     db.refresh(message)
+
+    message_data = {
+        'chat_id': str(message.chat_id),
+        'message_id': str(message.id),
+        'body': message.body,
+        'user_id': str(message.user_id),
+        'created_at': message.created_at.isoformat() if message.created_at else None,
+    }
+
+    await socket_manager.emit('new_message', message_data, room=str(chat.match_id))
 
     return message
