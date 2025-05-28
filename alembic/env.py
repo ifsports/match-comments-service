@@ -20,6 +20,9 @@ if config.config_file_name is not None:
 # noinspection PyUnresolvedReferences
 from chats.models.chats import Chat
 
+# noinspection PyUnresolvedReferences
+from chats.models.messages import Message
+
 from chats.shared.database import Base
 target_metadata = Base.metadata
 
