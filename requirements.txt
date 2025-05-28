@@ -2,7 +2,6 @@ fastapi==0.115.12
 uvicorn==0.34.2
 SQLAlchemy==2.0.41
 psycopg2==2.9.10
-fastapi-socketio==0.0.10
 
 # TOOLS
 alembic==1.16.1

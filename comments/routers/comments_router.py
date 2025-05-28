@@ -7,6 +7,7 @@ from typing import List
 
 from comments.models.comments import Comment
 from comments.schemas.comments import CommentResponse, CommentRequest
+from app import socket_manager
 from shared.dependencies import get_db
 
 from shared.exceptions import NotFound
@@ -26,7 +27,7 @@ def get_comments(match_id: uuid.UUID,
     return comments
 
 @router.post('/', response_model=CommentResponse, status_code=201)
-def create_comment(match_id: uuid.UUID,
+async def create_comment(match_id: uuid.UUID,
                    comment_request: CommentRequest,
                    db: Session = Depends(get_db)):
 
@@ -36,6 +37,15 @@ def create_comment(match_id: uuid.UUID,
     db.add(comment)
     db.commit()
     db.refresh(comment)
+
+    comment_data = {
+        'match_id': str(comment.match_id),
+        'comment_id': str(comment.id),
+        'body': comment.body,
+        'created_at': comment.created_at.isoformat() if comment.created_at else None,
+    }
+
+    await socket_manager.emit('create_comment', comment_data, room=str(comment.match_id))
 
     return comment
 
@@ -54,7 +64,7 @@ def comment_details(match_id: uuid.UUID,
 
 
 @router.put('/{comment_id}', status_code=204)
-def update_comment(match_id: uuid.UUID,
+async def update_comment(match_id: uuid.UUID,
                    comment_id: uuid.UUID,
                    comment_request: CommentRequest,
                    db: Session = Depends(get_db)):
@@ -69,11 +79,20 @@ def update_comment(match_id: uuid.UUID,
     comment.body = comment_in.body
     db.commit()
 
+    comment_data = {
+        'match_id': str(comment.match_id),
+        'comment_id': str(comment.id),
+        'body': comment.body,
+        'created_at': comment.created_at.isoformat() if comment.created_at else None,
+    }
+
+    await socket_manager.emit('update_comment', comment_data, room=str(comment.match_id))
+
     return
 
 
 @router.delete('/{comment_id}', status_code=204)
-def delete_comment(match_id: uuid.UUID,
+async def delete_comment(match_id: uuid.UUID,
                    comment_id: uuid.UUID,
                    db: Session = Depends(get_db)):
 
@@ -84,5 +103,14 @@ def delete_comment(match_id: uuid.UUID,
 
     db.delete(comment)
     db.commit()
+
+    comment_data = {
+        'match_id': str(comment.match_id),
+        'comment_id': str(comment.id),
+        'body': comment.body,
+        'created_at': comment.created_at.isoformat() if comment.created_at else None,
+    }
+
+    await socket_manager.emit('delete_comment', comment_data, room=str(comment.match_id))
 
     return
