@@ -6,8 +6,8 @@ from fastapi_socketio import SocketManager
 from chats.routers import chats_router
 from chats.routers import messages_router
 
-from chats.shared.exceptions_handler import not_found_exception_handler, conflict_exception_handler
-from chats.shared.exceptions import NotFound, Conflict
+from shared.exceptions_handler import not_found_exception_handler, conflict_exception_handler
+from shared.exceptions import NotFound, Conflict
 
 app = FastAPI()
 

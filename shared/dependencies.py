@@ -1,4 +1,4 @@
-from chats.shared.database import SessionLocal
+from shared.database import SessionLocal
 
 
 def get_db():

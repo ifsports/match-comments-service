@@ -3,8 +3,9 @@ from sqlalchemy.orm import Session
 
 from chats.models.chats import Chat
 from chats.schemas.chats import ChatResponse
-from chats.shared.dependencies import get_db
-from chats.shared.exceptions import NotFound, Conflict
+
+from shared.exceptions import NotFound, Conflict
+from shared.dependencies import get_db
 
 router = APIRouter(
     prefix='/api/v1/matches/{match_id}/chat',

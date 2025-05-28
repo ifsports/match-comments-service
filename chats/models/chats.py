@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 from sqlalchemy import Column, UUID, DateTime
 
-from chats.shared.database import Base
+from shared.database import Base
 
 import uuid
 
