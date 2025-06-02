@@ -15,7 +15,6 @@ class Match(Base):
     score_away: int = Column(Integer, nullable=False)
     start_time: datetime = Column(
         DateTime(timezone=True),
-        default=lambda: datetime.now(timezone.utc),
-        nullable=False
+        nullable=True
     )
     status: str = Column(String(50), nullable=False)
