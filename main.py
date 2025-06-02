@@ -2,6 +2,8 @@ import uvicorn
 import socketio
 from app import app, socket_manager
 
+
+
 from fastapi.middleware.cors import CORSMiddleware
 
 from chats.routers import chats_router, messages_router
@@ -12,7 +14,7 @@ from shared.exceptions import NotFound, Conflict
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://127.0.0.1:5500", "http://localhost:5500"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

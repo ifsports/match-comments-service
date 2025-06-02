@@ -1,12 +1,3 @@
-# match_data = {
-# 'competition_id': str(competition.id),
-# 'round_id': str(round_obj.id),
-# 'team_home_id': str(home.team_id),
-# 'team_away_id': str(away.team_id),
-# 'round_match_number': match_number,
-# 'status': 'pending',
-# }
-
 import asyncio
 import aio_pika
 import json
@@ -45,9 +36,7 @@ else:
 MATCHES_EXCHANGE = "matches_commands_exchange"
 
 MATCHES_CREATION_QUEUE = "match_comments_service.queue.match_creation"
-ROUTING_KEY_MATCHES_CREATION= "match.creation.match_creation"
-ROUTING_KEY_TEAM_DELETION = "team.deletion.requested"
-
+ROUTING_KEY_MATCHES_CREATION= "match_created"
 
 
 async def on_message(message: aio_pika.IncomingMessage) -> None:
@@ -94,13 +83,13 @@ async def main_consumer():
 
                 # Fila para criar match
                 team_creation_queue = await channel.declare_queue(
-                    REQUESTS_TEAM_CREATION_QUEUE,
+                    MATCHES_CREATION_QUEUE,
                     durable=True
                 )
 
-                await team_creation_queue.bind(exchange, routing_key=ROUTING_KEY_TEAM_CREATION)
+                await team_creation_queue.bind(exchange, routing_key=ROUTING_KEY_MATCHES_CREATION)
 
-                print(f"INFO: [requests_service] Consumidor: Conectado! '{REQUESTS_TEAM_CREATION_QUEUE}' esperando por mensagens com routing key '{ROUTING_KEY_TEAM_CREATION}'. Para sair pressione CTRL+C")
+                print(f"INFO: [requests_service] Consumidor: Conectado! '{MATCHES_CREATION_QUEUE}' esperando por mensagens com routing key '{ROUTING_KEY_MATCHES_CREATION}'. Para sair pressione CTRL+C")
 
                 await team_creation_queue.consume(on_message)
 
