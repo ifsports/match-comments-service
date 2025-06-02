@@ -26,6 +26,9 @@ from chats.models.chats import Chat
 from chats.models.messages import Message
 
 # noinspection PyUnresolvedReferences
+from matches.models.matches import Match
+
+# noinspection PyUnresolvedReferences
 from comments.models.comments import Comment
 
 from shared.database import Base
