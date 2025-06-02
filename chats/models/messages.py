@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 from sqlalchemy import Column, UUID, String, ForeignKey, DateTime
+from sqlalchemy.orm import relationship
 
 from shared.database import Base
 
@@ -23,3 +24,5 @@ class Message(Base):
         default=lambda: datetime.now(timezone.utc),
         nullable=False
     )
+
+    chat = relationship("Chat", back_populates="messages")

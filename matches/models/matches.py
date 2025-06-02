@@ -1,7 +1,8 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime
 
 from sqlalchemy import Column, UUID, DateTime, String, Integer
+from sqlalchemy.orm import relationship, Mapped
 
 from shared.database import Base
 
@@ -18,3 +19,6 @@ class Match(Base):
         nullable=True
     )
     status: str = Column(String(50), nullable=False)
+
+    comments = relationship("Comment", back_populates="match_obj")
+    chat = relationship("Chat", back_populates="match")
