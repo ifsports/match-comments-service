@@ -1,5 +1,6 @@
 import uuid
 
+from chats.models.chats import Chat
 from matches.models.matches import Match
 from shared.dependencies import get_db
 
@@ -75,6 +76,12 @@ def create_match_comments_in_db(message_data: dict) -> dict:
         db.add(new_match)
         db.commit()
         db.refresh(new_match)
+
+        chat = Chat(match_id=new_match.match_id)
+
+        db.add(chat)
+        db.commit()
+        db.refresh(chat)
 
         print(f"DB_SYNC: Match ID {new_match.match_id}")
 
