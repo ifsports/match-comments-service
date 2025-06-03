@@ -8,7 +8,7 @@ class MessageResponse(BaseModel):
     id: uuid.UUID
     body: str
     chat_id: uuid.UUID
-    user_id: uuid.UUID
+    user_id: str
     created_at: datetime
 
     model_config = {
@@ -17,4 +17,4 @@ class MessageResponse(BaseModel):
 
 class MessageCreateRequest(BaseModel):
     body: str
-    user_id: uuid.UUID
+    user_id: str

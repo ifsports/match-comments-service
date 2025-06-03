@@ -55,7 +55,7 @@ async def create_message(chat_id: uuid.UUID,
         'chat_id': str(message.chat_id),
         'message_id': str(message.id),
         'body': message.body,
-        'user_id': str(message.user_id),
+        'user_id': message.user_id,
         'created_at': message.created_at.isoformat() if message.created_at else None,
     }
 
