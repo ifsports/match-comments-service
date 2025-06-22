@@ -4,6 +4,7 @@ from sqlalchemy import Column, UUID, DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, relationship
 
 from chats.models.messages import Message
+from matches.models.matches import Match
 
 from shared.database import Base
 

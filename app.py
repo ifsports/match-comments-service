@@ -5,35 +5,7 @@ from contextlib import asynccontextmanager
 
 from messaging.consumers import main_consumer
 
-consumer_task = None
-
-@asynccontextmanager
-async def lifespan_manager(app: FastAPI):
-    global consumer_task
-    print("INFO:     [requests_service] Lifespan: Iniciando consumidor RabbitMQ...")
-    try:
-        consumer_task = asyncio.create_task(main_consumer())
-        print("INFO:     [requests_service] Lifespan: Tarefa do consumidor RabbitMQ criada e agendada.")
-    except Exception as e:
-        print(f"ERRO CRÍTICO: [requests_service] Lifespan: Falha ao iniciar a tarefa do consumidor: {e}")
-
-    yield
-
-    print("INFO:     [requests_service] Lifespan: Finalizando. Solicitando cancelamento da tarefa do consumidor...")
-    if consumer_task and not consumer_task.done():
-        consumer_task.cancel()
-        try:
-            await consumer_task
-        except asyncio.CancelledError:
-            print("INFO:     [requests_service] Lifespan: Tarefa do consumidor RabbitMQ cancelada com sucesso.")
-        except Exception as e:
-            print(f"ERRO: [requests_service] Lifespan: Erro durante o cancelamento da tarefa do consumidor: {e}")
-    else:
-        print(
-            "INFO:     [requests_service] Lifespan: Tarefa do consumidor não estava ativa ou já havia sido concluída.")
-    print("INFO:     [requests_service] Lifespan: Processo de shutdown concluído.")
-
-app = FastAPI(lifespan=lifespan_manager)
+app = FastAPI()
 
 socket_manager = socketio.AsyncServer(
     async_mode='asgi',
@@ -41,23 +13,3 @@ socket_manager = socketio.AsyncServer(
     logger=True,
     engineio_logger=True
 )
-
-@app.get("/health")
-async def health_check():
-    task_status = "não iniciada ou já concluída"
-    if consumer_task:
-        if consumer_task.done():
-            if consumer_task.cancelled():
-                task_status = "cancelada"
-            elif consumer_task.exception():
-                task_status = f"falhou com exceção: {consumer_task.exception()}"
-            else:
-                task_status = "concluída normalmente"
-        else:
-            task_status = "rodando"
-
-    return {
-        "service": "requests_service",
-        "status": "healthy_api",
-        "consumer_task_status": task_status
-    }

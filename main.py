@@ -1,5 +1,6 @@
 import uvicorn
 import socketio
+import models
 from app import app, socket_manager
 
 from fastapi.middleware.cors import CORSMiddleware

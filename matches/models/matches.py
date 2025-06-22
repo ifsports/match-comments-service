@@ -2,7 +2,9 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import Column, UUID, DateTime, String, Integer
-from sqlalchemy.orm import relationship, Mapped
+from sqlalchemy.orm import relationship
+
+from comments.models.comments import Comment
 
 from shared.database import Base
 
