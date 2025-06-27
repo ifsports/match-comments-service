@@ -15,7 +15,7 @@ class Message(Base):
     body: str = Column(String, nullable=False)
     chat_id: uuid.UUID = Column(
         UUID(as_uuid=True),
-        ForeignKey("chats.id"),
+        ForeignKey("chats.id", ondelete="CASCADE"),
         nullable=False
     )
     user_id: str = Column(String, nullable=False)

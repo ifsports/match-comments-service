@@ -14,7 +14,7 @@ class Chat(Base):
     __tablename__ = "chats"
 
     id: uuid.UUID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    match_id: Mapped[uuid.UUID] = Column(UUID(as_uuid=True), ForeignKey("matches.match_id"), unique=True, nullable=False)
+    match_id: Mapped[uuid.UUID] = Column(UUID(as_uuid=True), ForeignKey("matches.match_id", ondelete="CASCADE"), unique=True, nullable=False)
     created_at: datetime = Column(
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),

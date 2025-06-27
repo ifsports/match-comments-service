@@ -23,4 +23,4 @@ class Match(Base):
     status: str = Column(String(50), nullable=False)
 
     comments = relationship("Comment", back_populates="match_obj")
-    chat = relationship("Chat", back_populates="match")
+    chat = relationship("Chat", back_populates="match", cascade="all, delete-orphan")
