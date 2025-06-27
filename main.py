@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from chats.routers import chats_router, messages_router
 from comments.routers import comments_router
+from matches.routers import matches_router
 
 from shared.exceptions_handler import not_found_exception_handler, conflict_exception_handler
 from shared.exceptions import NotFound, Conflict
@@ -56,11 +57,12 @@ async def handle_ping(sid, data):
 app.include_router(chats_router.router)
 app.include_router(messages_router.router)
 app.include_router(comments_router.router)
+app.include_router(matches_router.router)
 
 app.add_exception_handler(NotFound, not_found_exception_handler)
 app.add_exception_handler(Conflict, conflict_exception_handler)
 
-app.mount("/socket.io", socketio.ASGIApp(socket_manager, socketio_path=""))
+app.mount("/socket.io", socketio.ASGIApp(socket_manager, socketio_path="/socket.io"))
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8002)
