@@ -4,6 +4,7 @@ SQLAlchemy==2.0.41
 psycopg2-binary==2.9.10
 aio-pika==9.5.5
 python-socketio==5.13.0
+python-jose==3.5.0
 
 # TOOLS
 alembic==1.16.1
