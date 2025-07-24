@@ -12,6 +12,7 @@ class Match(Base):
     __tablename__ = "matches"
 
     match_id: uuid.UUID = Column(UUID(as_uuid=True), primary_key=True, nullable=False)
+    competition_id: uuid.UUID = Column(UUID(as_uuid=True), nullable=False)
     team_home_id: uuid.UUID = Column(UUID(as_uuid=True), nullable=False)
     team_away_id: uuid.UUID = Column(UUID(as_uuid=True), nullable=False)
     score_home: int = Column(Integer, nullable=False)

@@ -14,12 +14,15 @@ def create_match_comments_in_db(message_data: dict) -> dict:
 
     try:
         match_id_str = message_data.get("match_id")
+        competition_id_str = message_data.get("competition_id")
         team_home_id_str = message_data.get("team_home_id")
         team_away_id_str = message_data.get("team_away_id")
         status_str = message_data.get("status")
 
         if not match_id_str:
             raise ValueError("'match_id' é obrigatório na mensagem")
+        if not competition_id_str:
+            raise ValueError("'competition_id' é obrigatório na mensagem")
         if not team_home_id_str:
             raise ValueError("'team_home_id' é obrigatório na mensagem")
         if not team_away_id_str:
@@ -29,6 +32,11 @@ def create_match_comments_in_db(message_data: dict) -> dict:
             match_id_for_db = uuid.UUID(match_id_str)
         except ValueError:
             raise ValueError(f"match_id'{match_id_str}' não é um UUID válido")
+
+        try:
+            competition_id_for_db = uuid.UUID(competition_id_str)
+        except ValueError:
+            raise ValueError(f"competition_id'{competition_id_str}' não é um UUID válido")
 
         try:
             team_home_id_for_db = uuid.UUID(team_home_id_str)
@@ -64,6 +72,7 @@ def create_match_comments_in_db(message_data: dict) -> dict:
 
         match_creation_data = {
             "match_id": match_id_for_db,
+            "competition_id": competition_id_for_db,
             "team_home_id": team_home_id_for_db,
             "team_away_id": team_away_id_for_db,
             "score_home": 0,
@@ -87,6 +96,7 @@ def create_match_comments_in_db(message_data: dict) -> dict:
 
         return {
             "match_id": new_match.match_id,
+            "competition_id": new_match.competition_id,
             "team_home_id": new_match.team_home_id,
             "team_away_id": new_match.team_away_id,
             "status": status_str,

@@ -24,6 +24,7 @@ def upgrade() -> None:
     op.create_table(
         'matches',
         sa.Column('match_id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('competition_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('team_home_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('team_away_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('score_home', sa.Integer(), nullable=False),
