@@ -9,6 +9,7 @@ class MatchRequestUpdateScore(BaseModel):
 
 class MatchResponse(BaseModel):
     match_id: uuid.UUID
+    competition_id: uuid.UUID
     team_home_id: uuid.UUID
     team_away_id: uuid.UUID
     score_home: int

@@ -1,6 +1,7 @@
 import uuid
+from typing import Optional, List
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app import socket_manager
@@ -17,6 +18,21 @@ router = APIRouter(
     prefix='/api/v1/matches',
     tags=['Matches']
 )
+
+@router.get('/', response_model=List[MatchResponse], status_code=200)
+def get_matches(competition_id: Optional[str] = Query(None, description="Filtrar partidas por competição"),
+                db: Session = Depends(get_db)):
+
+
+    if not competition_id:
+        raise HTTPException(
+            status_code=400,
+            detail="O ID da competição deve ser informado!"
+        )
+
+    matches = db.query(Match).filter(Match.competition_id == competition_id).all()
+
+    return matches
 
 @router.get('/{match_id}', response_model=MatchResponse, status_code=200)
 def get_match_details(match_id: uuid.UUID,
