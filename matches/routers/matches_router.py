@@ -19,10 +19,11 @@ router = APIRouter(
     tags=['Matches']
 )
 
-@router.get('/', response_model=List[MatchResponse], status_code=200)
-def get_matches(competition_id: Optional[str] = Query(None, description="Filtrar partidas por competição"),
+@router.get("/", response_model=List[MatchResponse])
+def get_matches(competition_id: str = Query(None, description="Filtrar partidas por competição"),
+                limit: int = Query(6, ge=1, le=100, description="Número máximo de partidas por página"),
+                offset: int = Query(0, ge=0, description="Número de partidas a pular"),
                 db: Session = Depends(get_db)):
-
 
     if not competition_id:
         raise HTTPException(
@@ -30,7 +31,13 @@ def get_matches(competition_id: Optional[str] = Query(None, description="Filtrar
             detail="O ID da competição deve ser informado!"
         )
 
-    matches = db.query(Match).filter(Match.competition_id == competition_id).all()
+    query = db.query(Match).filter(Match.competition_id == competition_id)
+    query = query.order_by(
+        (Match.status == "in-progress").desc(),
+        Match.start_time.asc()
+    )
+
+    matches = query.offset(offset).limit(limit).all()
 
     return matches
 
