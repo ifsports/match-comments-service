@@ -36,7 +36,7 @@ async def handle_join_chat(sid, data):
     data = {'match_id': 'uuid-do-match'}
     """
     match_id = str(data.get('match_id'))
-    user_id = data.get('user_id')
+    user_id = data.get('user_id', None)
 
     await socket_manager.enter_room(sid, match_id)
     print(f"Cliente {sid} (user: {user_id}) entrou no chat {match_id}")
