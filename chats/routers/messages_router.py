@@ -43,11 +43,13 @@ async def create_message(chat_id: uuid.UUID,
                    current_user: dict = Depends(get_current_user)):
 
     groups = current_user["groups"]
+    user_id = current_user["user_matricula"]
 
     message = Message(**message_request.model_dump())
 
     if has_role(groups, "Organizador", "Jogador"):
         message.chat_id = chat_id
+        message.user_id = user_id
 
         chat: Chat = db.query(Chat).filter(Chat.id == chat_id, Chat.finished_at.is_(None)).first() #type: ignore
 

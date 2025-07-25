@@ -17,4 +17,3 @@ class MessageResponse(BaseModel):
 
 class MessageCreateRequest(BaseModel):
     body: str
-    user_id: str
