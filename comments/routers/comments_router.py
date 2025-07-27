@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
 import uuid
@@ -13,6 +13,7 @@ from shared.auth_utils import has_role
 from shared.dependencies import get_db
 
 from shared.exceptions import NotFound
+from messaging.audit_publisher import generate_log_payload, run_async_audit
 
 router = APIRouter(
     prefix='/api/v1/matches/{match_id}/comments',
@@ -31,6 +32,7 @@ def get_comments(match_id: uuid.UUID,
 @router.post('/', response_model=CommentResponse, status_code=201)
 async def create_comment(match_id: uuid.UUID,
                    comment_request: CommentRequest,
+                   request: Request,
                    db: Session = Depends(get_db),
                    current_user: dict = Depends(get_current_user)):
 
@@ -51,6 +53,22 @@ async def create_comment(match_id: uuid.UUID,
             'body': comment.body,
             'created_at': comment.created_at.isoformat() if comment.created_at else None,
         }
+
+        # Gera o de log de auditoria (comment.created)
+        log_payload = generate_log_payload(
+            event_type="comment.created",
+            service_origin="match_comments_service",
+            entity_type="comment",
+            entity_id=comment.id,
+            operation_type="CREATE",
+            campus_code=current_user.get("campus"),
+            user_registration=current_user.get("user_matricula"),
+            request_object=request,
+            new_data=comment_data,
+        )
+
+        # Publica o log de auditoria
+        run_async_audit(log_payload)
 
         await socket_manager.emit('create_comment', comment_data, room=str(comment.match_id))
 
