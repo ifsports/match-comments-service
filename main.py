@@ -65,4 +65,4 @@ app.add_exception_handler(Conflict, conflict_exception_handler)
 app.mount("/socket.io", socketio.ASGIApp(socket_manager, socketio_path="/socket.io"))
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8002)
+    uvicorn.run(app, host="0.0.0.0", port=8002, proxy_headers=True)
