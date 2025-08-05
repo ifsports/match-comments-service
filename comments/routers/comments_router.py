@@ -24,18 +24,68 @@ router = APIRouter(
 @router.get('/', response_model=List[CommentResponse], status_code=200)
 def get_comments(match_id: uuid.UUID,
                  db: Session = Depends(get_db)):
+    """
+    List Comments by Match
 
-    comments: Comment = db.query(Comment).filter(Comment.match_id == match_id).all() # type: ignore
+    Lista todos os comentários associados a uma partida específica, identificada pelo `match_id`.
+
+    **Exemplo de Resposta:**
+
+    .. code-block:: json
+
+       [
+         {
+           "id": "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6",
+           "match_id": "c1d2e3f4-a5b6-7890-1234-567890abcdef",
+           "body": "Que golaço do time da casa!",
+           "created_at": "2025-08-10T14:15:30Z"
+         },
+         {
+           "id": "b2c3d4e5-f6a7-b8c9-d0e1-f2a3b4c5d6e7",
+           "match_id": "c1d2e3f4-a5b6-7890-1234-567890abcdef",
+           "body": "Juiz marcou falta, mas não pareceu.",
+           "created_at": "2025-08-10T14:18:05Z"
+         }
+       ]
+    """
+    comments: Comment = db.query(Comment).filter(
+        Comment.match_id == match_id).all()  # type: ignore
 
     return comments
 
+
 @router.post('/', response_model=CommentResponse, status_code=201)
 async def create_comment(match_id: uuid.UUID,
-                   comment_request: CommentRequest,
-                   request: Request,
-                   db: Session = Depends(get_db),
-                   current_user: dict = Depends(get_current_user)):
+                         comment_request: CommentRequest,
+                         request: Request,
+                         db: Session = Depends(get_db),
+                         current_user: dict = Depends(get_current_user)):
+    """
+    Create a Comment
 
+    Cria um novo comentário para uma partida. A ação é restrita a usuários com o papel 'Organizador'.
+    Após a criação, um evento WebSocket (`create_comment`) é emitido para a sala da partida,
+    permitindo que clientes atualizem a UI em tempo real. Um log de auditoria também é gerado.
+
+    **Exemplo de Corpo da Requisição (Payload):**
+
+    .. code-block:: json
+
+       {
+         "body": "Cartão amarelo para o camisa 5 por reclamação."
+       }
+
+    **Exemplo de Resposta:**
+
+    .. code-block:: json
+
+       {
+         "id": "d4e5f6a7-b8c9-d0e1-f2a3-b4c5d6e7f8a9",
+         "match_id": "c1d2e3f4-a5b6-7890-1234-567890abcdef",
+         "body": "Cartão amarelo para o camisa 5 por reclamação.",
+         "created_at": "2025-08-10T14:25:10Z"
+       }
+    """
     groups = current_user["groups"]
 
     comment = Comment(**comment_request.model_dump())
@@ -86,10 +136,27 @@ def comment_details(match_id: uuid.UUID,
                     comment_id: uuid.UUID,
                     db: Session = Depends(get_db),
                     current_user: dict = Depends(get_current_user)):
+    """
+    Get Comment Details
 
+    Busca os detalhes de um comentário específico pelo seu ID.
+    O acesso é restrito a usuários com o papel 'Organizador'.
+
+    **Exemplo de Resposta:**
+
+    .. code-block:: json
+
+       {
+         "id": "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6",
+         "match_id": "c1d2e3f4-a5b6-7890-1234-567890abcdef",
+         "body": "Que golaço do time da casa!",
+         "created_at": "2025-08-10T14:15:30Z"
+       }
+    """
     groups = current_user["groups"]
 
-    comment: Comment = db.query(Comment).filter(Comment.match_id == match_id, Comment.id == comment_id).first() # type: ignore
+    comment: Comment = db.query(Comment).filter(
+        Comment.match_id == match_id, Comment.id == comment_id).first()  # type: ignore
 
     if not comment:
         raise NotFound("Comentário")
@@ -106,16 +173,31 @@ def comment_details(match_id: uuid.UUID,
 
 @router.put('/{comment_id}', status_code=204)
 async def update_comment(match_id: uuid.UUID,
-                   comment_id: uuid.UUID,
-                   comment_request: CommentRequest,
-                   db: Session = Depends(get_db),
-                   current_user: dict = Depends(get_current_user)):
+                         comment_id: uuid.UUID,
+                         comment_request: CommentRequest,
+                         db: Session = Depends(get_db),
+                         current_user: dict = Depends(get_current_user)):
+    """
+    Update a Comment
 
+    Atualiza o corpo de um comentário existente.
+    Após a atualização, um evento WebSocket (`update_comment`) é emitido para a sala da partida.
+    Ação restrita a usuários com o papel 'Organizador'. A rota não retorna conteúdo.
+
+    **Exemplo de Corpo da Requisição (Payload):**
+
+    .. code-block:: json
+
+       {
+         "body": "Correção: O cartão foi para o camisa 8, não o 5."
+       }
+    """
     groups = current_user["groups"]
 
     comment_in = Comment(**comment_request.model_dump())
 
-    comment: Comment = db.query(Comment).filter(Comment.match_id == match_id, Comment.id == comment_id).first() # type: ignore
+    comment: Comment = db.query(Comment).filter(
+        Comment.match_id == match_id, Comment.id == comment_id).first()  # type: ignore
 
     if not comment:
         raise NotFound("Comentário")
@@ -144,13 +226,20 @@ async def update_comment(match_id: uuid.UUID,
 
 @router.delete('/{comment_id}', status_code=204)
 async def delete_comment(match_id: uuid.UUID,
-                   comment_id: uuid.UUID,
-                   db: Session = Depends(get_db),
-                   current_user: dict = Depends(get_current_user)):
+                         comment_id: uuid.UUID,
+                         db: Session = Depends(get_db),
+                         current_user: dict = Depends(get_current_user)):
+    """
+    Delete a Comment
 
+    Exclui um comentário existente.
+    Após a exclusão, um evento WebSocket (`delete_comment`) é emitido para a sala da partida.
+    Ação restrita a usuários com o papel 'Organizador'. A rota não retorna conteúdo.
+    """
     groups = current_user["groups"]
 
-    comment: Comment = db.query(Comment).filter(Comment.match_id == match_id, Comment.id == comment_id).first() # type: ignore
+    comment: Comment = db.query(Comment).filter(
+        Comment.match_id == match_id, Comment.id == comment_id).first()  # type: ignore
 
     if not comment:
         raise NotFound("Comentário")
